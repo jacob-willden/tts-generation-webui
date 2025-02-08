@@ -3,7 +3,7 @@ import { GradioFile } from "../types/GradioFile";
 export type BarkResult = {
   audio: GradioFile;
   npz: string;
-  json_text: {
+  metadata: {
     _version: string;
     _hash_version: string;
     _type: string;
@@ -24,5 +24,5 @@ export type BarkResult = {
     semantic_prompt: string;
     coarse_prompt: string;
   };
-  history_bundle_name_data: string;
+  folder_root: string;
 };

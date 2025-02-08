@@ -7,6 +7,7 @@ installer_files/
 # Ignore settings
 config.json
 .env
+.env.user
 
 # Ignore generated files
 /outputs/
@@ -31,6 +32,9 @@ config.json
 /data/models/hubert_base.pt
 /data/models/rmvpe.pt
 /data/models/audiocraft_plus/
+/data/models/parler_tts/
+/data/models/musicgen_audiogen/*/
+/data/models/resemble_enhance/ds/
 
 # Ignore temporary files
 temp/
@@ -46,5 +50,9 @@ node_modules/
 # Ignore temporary Jupiter notebooks
 *.temp.ipynb
 
-# Temporary file used by some modules
+# Temporary files used by some modules
 output.wav
+log.out
+
+# Database
+/data/postgres/

@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { resolve } = require("path");
 const { $ } = require("./js/shell");
 const { displayError, displayMessage } = require("./js/displayMessage.js");
 const { processExit } = require("./js/processExit.js");
@@ -7,6 +8,7 @@ const checkConda = async () => {
   try {
     displayMessage("Checking conda installation...");
     await $("conda --version");
+    displayMessage("");
   } catch (error) {
     displayError(
       "Please install conda from https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html"
@@ -20,9 +22,20 @@ const updateConda = async () => {
 };
 
 const FORCE_REINSTALL = process.env.FORCE_REINSTALL ? true : false;
-const DEBUG_ALWAYS_RETURN_UPDATED = FORCE_REINSTALL || process.env.DEBUG_ALWAYS_RETURN_UPDATED
-  ? true
-  : false;
+const DEBUG_ALWAYS_RETURN_UPDATED =
+  FORCE_REINSTALL || process.env.DEBUG_ALWAYS_RETURN_UPDATED ? true : false;
+
+const getGitCommitHash = () =>
+  fs.readFileSync("./.git/refs/heads/main", "utf8");
+
+const AppliedGitVersion = {
+  file: resolve(__dirname, ".git_version"),
+  get: () =>
+    fs.existsSync(AppliedGitVersion.file)
+      ? fs.readFileSync(AppliedGitVersion.file, "utf8")
+      : null,
+  save: () => fs.writeFileSync(AppliedGitVersion.file, getGitCommitHash()),
+};
 
 const syncRepo = async () => {
   if (!fs.existsSync(".git")) {
@@ -39,11 +52,10 @@ const syncRepo = async () => {
   } else {
     displayMessage("Pulling updates from tts-generation-webui");
     try {
-      const file = ".git/refs/heads/main";
-      const currentHash = fs.readFileSync(file, "utf8");
       await $("git pull");
-      const newHash = fs.readFileSync(file, "utf8");
-      if (currentHash === newHash) {
+      const newHash = getGitCommitHash();
+      if (AppliedGitVersion.get() === newHash) {
+        displayMessage("Current git version: " + newHash);
         displayMessage("No updates found, skipping...");
         return false || DEBUG_ALWAYS_RETURN_UPDATED;
       }
@@ -77,17 +89,18 @@ async function main() {
     // await updateConda();
     // check if there are any packages actually installed inside of conda
     const isUpdated = await syncRepo();
-    if (!isUpdated) {
-      return;
-    }
+    if (!isUpdated) return;
+
     const {
       initializeApp,
-      repairTorch,
       setupReactUI,
+      repairTorch,
     } = require("./js/initializeApp.js");
     await initializeApp();
     await setupReactUI();
     await repairTorch();
+
+    AppliedGitVersion.save();
   } catch (error) {
     displayError(error.message);
     processExit(1);

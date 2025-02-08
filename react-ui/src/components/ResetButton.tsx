@@ -1,20 +1,24 @@
 import React from "react";
-import { commonBorder } from "./commonBorder";
+import { Button } from "./ui/button";
 
 export const ResetButton = <T extends {}>({
-  params, setParams, initialParams,
+  params,
+  setParams,
+  initialParams,
 }: {
   params: T;
   setParams: React.Dispatch<React.SetStateAction<T>>;
   initialParams: T;
 }) => (
-  <button
-    className={commonBorder}
-    onClick={() => setParams({
-      ...params,
-      ...initialParams,
-    })}
+  <Button
+    variant="outline"
+    onClick={() =>
+      setParams({
+        ...params,
+        ...initialParams,
+      })
+    }
   >
     Reset Parameters
-  </button>
+  </Button>
 );

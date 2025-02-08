@@ -10,6 +10,8 @@ output.log
 .major_version
 .python_version
 .pip_packages
+.db_version
+.git_version
 
 # Diagnostic
 diagnostic.txt
